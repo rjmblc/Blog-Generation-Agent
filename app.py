@@ -1,10 +1,16 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 import uvicorn
 
 from src.graphs.graph_builder import GraphBuilder
 from src.llms.groq_llm import GroqLLM
 
+
 app = FastAPI()
+
+
+class BlogRequest(BaseModel):
+    topic: str
 
 
 @app.get("/health")
@@ -13,10 +19,9 @@ async def health():
 
 
 @app.post("/blogs")
-async def create_blogs(request: Request):
+async def create_blogs(request: BlogRequest):
 
-    data = await request.json()
-    topic = data.get("topic", "").strip()
+    topic = request.topic.strip()
 
     if not topic:
         raise HTTPException(
